@@ -14,6 +14,16 @@ builder.Services.AddDbContext<AppDbContext>(option =>
     option.UseSqlServer(builder.Configuration.GetConnectionString("SqlServerConnStr"));
 });
 
+
+builder.Services.AddCors(options => options.AddPolicy(name: "NewAngularSignUpApi", policy =>
+{
+    policy.WithOrigins("*").AllowAnyMethod().AllowAnyHeader();
+
+}));
+
+
+
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -22,6 +32,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseCors("NewAngularSignUpApi");
 
 app.UseHttpsRedirection();
 
