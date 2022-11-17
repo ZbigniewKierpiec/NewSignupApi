@@ -25,9 +25,13 @@ namespace AngularSignupApi.Controllers
         {
             if (userObj == null)
                 return BadRequest();
-            var user = await _authContext.Users.FirstOrDefaultAsync(x => x.Username == userObj.Username && x.Password == userObj.Password);
+            var user = await _authContext.Users.FirstOrDefaultAsync(x => x.Username == userObj.Username);
             if(user == null)    
                 return NotFound(new {Message = "User Not Found!"});
+            if(!PasswordHasher.VerifyPassword(userObj.Password, user.Password))
+            {
+                return BadRequest(new {message="Password is Incorrect"});
+            }
             return Ok( new {Message = "Login Success!"});
         }
 
