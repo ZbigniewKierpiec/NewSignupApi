@@ -1,5 +1,8 @@
 using AngularSignupApi.Context;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,7 +23,45 @@ builder.Services.AddCors(options => options.AddPolicy(name: "NewAngularSignUpApi
     policy.WithOrigins("*").AllowAnyMethod().AllowAnyHeader();
 
 }));
+//////Token
+///
 
+
+
+
+
+builder.Services.AddAuthentication(x =>
+{
+    x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+}).AddJwtBearer(x =>
+{
+    x.RequireHttpsMetadata = false;
+    x.SaveToken = true;
+    x.TokenValidationParameters = new TokenValidationParameters
+    {
+
+        ValidateIssuerSigningKey = true,
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("veryverysceret.....")),
+        ValidateAudience = false,
+        ValidateIssuer = false,
+        ClockSkew = TimeSpan.Zero,
+
+
+    };
+});
+
+
+
+
+
+
+
+
+
+
+
+//////////
 
 
 
@@ -36,6 +77,8 @@ if (app.Environment.IsDevelopment())
 app.UseCors("NewAngularSignUpApi");
 
 app.UseHttpsRedirection();
+
+app.UseAuthentication();
 
 app.UseAuthorization();
 

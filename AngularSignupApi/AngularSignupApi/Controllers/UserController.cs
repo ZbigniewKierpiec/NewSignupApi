@@ -6,6 +6,10 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Text.RegularExpressions;
 using System.Text;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 
 namespace AngularSignupApi.Controllers
 {
@@ -32,7 +36,12 @@ namespace AngularSignupApi.Controllers
             {
                 return BadRequest(new {message="Password is Incorrect"});
             }
-            return Ok( new {Message = "Login Success!"});
+            user.Token = CreateJwt(user);
+            return Ok( new
+            { 
+                Token = user.Token, 
+                Message = "Login Success!"
+            });
         }
 
         [HttpPost("register")]
@@ -95,6 +104,48 @@ namespace AngularSignupApi.Controllers
             return sb.ToString();
 
         }
+
+        ///////////Token
+        ///
+
+
+
+
+
+        private string CreateJwt(User user)
+        {
+            var jwtTokenHandler = new JwtSecurityTokenHandler();
+            var key = Encoding.ASCII.GetBytes("veryverysceret.....");
+            var identity = new ClaimsIdentity(new Claim[]
+            {
+                new Claim(ClaimTypes.Role, user.Role),
+                new Claim(ClaimTypes.Name,$"{user.FirstName} {user.LastName}")
+            });
+
+            var credentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256);
+
+            var tokenDescriptor = new SecurityTokenDescriptor
+            {
+                Subject = identity,
+                Expires = DateTime.Now.AddDays(1),
+                //Expires = DateTime.Now.AddSeconds(10),
+                SigningCredentials = credentials
+
+            };
+            var token = jwtTokenHandler.CreateToken(tokenDescriptor);
+            return jwtTokenHandler.WriteToken(token);
+        }
+
+
+
+       
+        [HttpGet]
+        public async Task<ActionResult<User>> GetAllUsers()
+        {
+            return Ok(await _authContext.Users.ToListAsync());
+        }
+
+
 
 
     }
