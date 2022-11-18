@@ -127,8 +127,8 @@ namespace AngularSignupApi.Controllers
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = identity,
-                Expires = DateTime.Now.AddDays(1),
-                //Expires = DateTime.Now.AddSeconds(10),
+                //Expires = DateTime.Now.AddDays(1),
+                Expires = DateTime.Now.AddSeconds(10),
                 SigningCredentials = credentials
 
             };
@@ -138,7 +138,7 @@ namespace AngularSignupApi.Controllers
 
 
 
-       
+        [Authorize]
         [HttpGet]
         public async Task<ActionResult<User>> GetAllUsers()
         {
